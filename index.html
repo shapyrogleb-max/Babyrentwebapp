@@ -32,19 +32,19 @@
     <div class="card" onclick="selectKit('basic', this)">
         <div class="card-icon">🌱</div>
         <div class="card-title">Базовый</div>
-        <div class="card-desc">5 боди • 3 ползунка • 2 шапочки</div>
+        <p>5 боди • 3 ползунка • 2 шапочки</p>
         <div class="card-price">от 800 ₽/неделя</div>
     </div>
     <div class="card" onclick="selectKit('comfort', this)">
         <div class="card-icon">🌿</div>
         <div class="card-title">Комфорт</div>
-        <div class="card-desc">8 боди • 5 ползунков • 3 шапочки • кофточки</div>
+        <p>8 боди • 5 ползунков • 3 шапочки • кофточки</p>
         <div class="card-price">от 1 400 ₽/неделя</div>
     </div>
     <div class="card" onclick="selectKit('premium', this)">
         <div class="card-icon">🌳</div>
         <div class="card-title">Премиум</div>
-        <div class="card-desc">Всё из Комфорта + комбинезоны • конверт</div>
+        <p>Всё из Комфорта + комбинезоны • конверт</p>
         <div class="card-price">от 2 200 ₽/неделя</div>
     </div>
 </div>
@@ -67,8 +67,8 @@
 
 <div id="step3" class="hidden">
     <h1>📦 Детали заказа</h1>
-    <label><input type="checkbox" id="deliveryCheck" onchange="calculateTotal()">🚗 Доставка (+500 ₽)</label>
-    <label><input type="checkbox" id="washingCheck" onchange="calculateTotal()">🧺 Стирка (+300 ₽/нед)</label>
+    <label><input type="checkbox" id="deliveryCheck" onchange="updateTotal()">🚗 Доставка (+500 ₽)</label>
+    <label><input type="checkbox" id="washingCheck" onchange="updateTotal()">🧺 Стирка (+300 ₽/нед)</label>
     <div class="summary-box">
         <h2>📋 Ваш заказ</h2>
         <div class="summary-row"><span>Комплект</span><span id="summaryKit">-</span></div>
@@ -78,7 +78,7 @@
         <div class="summary-row"><span>Стирка</span><span id="summaryWashing">Нет</span></div>
         <div class="summary-total"><span>💰 Итого</span><span id="totalPrice">0 ₽</span></div>
     </div>
-    <a id="orderLink" class="button" href="#" target="_blank">✅ Отправить заказ боту</a>
+    <a id="orderLink" class="button" href="#">✅ Отправить заказ боту</a>
     <span class="back-link" onclick="goBackToStep2()">← Назад</span>
 </div>
 
@@ -115,60 +115,43 @@
         order.startDate = val;
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step3').classList.remove('hidden');
-        updateSummary();
-        calculateTotal();
+        updateAll();
     }
-    function calculateTotal() {
-        if (!order.kit || !order.period) return;
+    function updateTotal() {
+        updateAll();
+    }
+    function updateAll() {
+        if (!order.kit || !order.period || !order.startDate) return;
         var kit = KITS[order.kit];
         var per = PERIODS[order.period];
         var weeks = per.weeks;
         var base = kit.price * weeks;
         var rental = base - (base * per.discount);
-        var delivery = document.getElementById('deliveryCheck').checked ? 500 : 0;
-        var washing = document.getElementById('washingCheck').checked ? 300 * weeks : 0;
         order.delivery = document.getElementById('deliveryCheck').checked;
         order.washing = document.getElementById('washingCheck').checked;
+        var delivery = order.delivery ? 500 : 0;
+        var washing = order.washing ? 300 * weeks : 0;
         order.total = Math.round(rental + delivery + washing);
-        document.getElementById('totalPrice').textContent = order.total.toLocaleString() + ' ₽';
-        document.getElementById('summaryDelivery').textContent = order.delivery ? 'Да (+500 ₽)' : 'Нет';
-        document.getElementById('summaryWashing').textContent = order.washing ? 'Да (+' + (300*weeks) + ' ₽)' : 'Нет';
-    }
-    function updateSummary() {
-        if (!order.kit || !order.period) return;
-        document.getElementById('summaryKit').textContent = KITS[order.kit].name;
-        document.getElementById('summaryPeriod').textContent = PERIODS[order.period].name;
-        if (order.startDate) {
-            var s = new Date(order.startDate);
-            var e = new Date(s);
-            e.setDate(e.getDate() + PERIODS[order.period].weeks * 7);
-            document.getElementById('summaryDates').textContent = s.toLocaleDateString('ru-RU') + ' — ' + e.toLocaleDateString('ru-RU');
-        }
-    }
 
-    // Обновляем ссылку при изменениях
-    document.getElementById('deliveryCheck').addEventListener('change', updateLink);
-    document.getElementById('washingCheck').addEventListener('change', updateLink);
-    
-    function updateLink() {
-        if (!order.kit || !order.period || !order.startDate) return;
-        calculateTotal();
-        var per = PERIODS[order.period];
+        document.getElementById('summaryKit').textContent = kit.name;
+        document.getElementById('summaryPeriod').textContent = per.name;
         var s = new Date(order.startDate);
         var e = new Date(s);
-        e.setDate(e.getDate() + per.weeks * 7);
-        var text = encodeURIComponent(
-            'НОВЫЙ ЗАКАЗ\n' +
-            'Комплект: ' + KITS[order.kit].name + '\n' +
-            'Срок: ' + per.name + '\n' +
-            'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '\n' +
-            'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '\n' +
-            'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '\n' +
-            'ИТОГО: ' + order.total + ' руб.'
-        );
-        document.getElementById('orderLink').href = 'https://t.me/Babyrent_bot?text=' + text;
-    }
+        e.setDate(e.getDate() + weeks * 7);
+        document.getElementById('summaryDates').textContent = s.toLocaleDateString('ru-RU') + ' — ' + e.toLocaleDateString('ru-RU');
+        document.getElementById('summaryDelivery').textContent = order.delivery ? 'Да (+500 ₽)' : 'Нет';
+        document.getElementById('summaryWashing').textContent = order.washing ? 'Да (+' + (300*weeks) + ' ₽)' : 'Нет';
+        document.getElementById('totalPrice').textContent = order.total.toLocaleString() + ' ₽';
 
+        var msg = 'НОВЫЙ ЗАКАЗ\n';
+        msg += 'Комплект: ' + kit.name + '\n';
+        msg += 'Срок: ' + per.name + '\n';
+        msg += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '\n';
+        msg += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '\n';
+        msg += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '\n';
+        msg += 'ИТОГО: ' + order.total + ' руб.';
+        document.getElementById('orderLink').href = 'https://t.me/Babyrent_bot?text=' + encodeURIComponent(msg);
+    }
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step1').classList.remove('hidden');
