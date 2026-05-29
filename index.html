@@ -154,29 +154,31 @@
             document.getElementById('summaryDates').textContent = s.toLocaleDateString('ru-RU') + ' — ' + e.toLocaleDateString('ru-RU');
         }
     }
-
     function sendOrder() {
-        if (!order.kit || !order.period || !order.startDate) {
-            alert('Заполните все поля');
-            return;
-        }
-
-        var per = PERIODS[order.period];
-        var s = new Date(order.startDate);
-        var e = new Date(s);
-        e.setDate(e.getDate() + per.weeks * 7);
-
-        var text = 'НОВЫЙ ЗАКАЗ%0A%0A';
-        text += 'Комплект: ' + KITS[order.kit].name + '%0A';
-        text += 'Срок: ' + per.name + '%0A';
-        text += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '%0A%0A';
-        text += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '%0A';
-        text += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '%0A%0A';
-        text += 'ИТОГО: ' + order.total + ' руб.';
-
-        window.location.href = 'https://t.me/Babyrent_bot?text=' + text;
+    if (!order.kit || !order.period || !order.startDate) {
+        alert('Заполните все поля');
+        return;
     }
 
+    var per = PERIODS[order.period];
+    var s = new Date(order.startDate);
+    var e = new Date(s);
+    e.setDate(e.getDate() + per.weeks * 7);
+
+    var text = '<h1>✅ Заказ сформирован</h1>';
+    text += '<div class="summary-box">';
+    text += '<p><b>Комплект:</b> ' + KITS[order.kit].name + '</p>';
+    text += '<p><b>Срок:</b> ' + per.name + '</p>';
+    text += '<p><b>Даты:</b> ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '</p>';
+    text += '<p><b>Доставка:</b> ' + (order.delivery ? 'Да' : 'Нет') + '</p>';
+    text += '<p><b>Стирка:</b> ' + (order.washing ? 'Да' : 'Нет') + '</p>';
+    text += '<p style="font-size:20px;font-weight:bold;color:#E91E63;margin-top:12px;"><b>ИТОГО:</b> ' + order.total.toLocaleString() + ' ₽</p>';
+    text += '</div>';
+    text += '<p style="text-align:center;margin-top:20px;color:#666;">⚠️ Отправьте скриншот боту или напишите "Заказ оформлен"</p>';
+
+    document.getElementById('step3').innerHTML = text;
+}
+    
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
         document.getElementById('step1').classList.remove('hidden');
