@@ -161,26 +161,30 @@
     }
 
     function sendOrder() {
-        if (!order.kit || !order.period || !order.startDate) {
-            tg.showAlert('Заполните все поля');
-            return;
-        }
-
-        var per = PERIODS[order.period];
-        var s = new Date(order.startDate);
-        var e = new Date(s);
-        e.setDate(e.getDate() + per.weeks * 7);
-
-        var text = 'НОВЫЙ ЗАКАЗ\n';
-        text += 'Комплект: ' + KITS[order.kit].name + '\n';
-        text += 'Срок: ' + per.name + '\n';
-        text += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '\n';
-        text += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '\n';
-        text += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '\n';
-        text += 'ИТОГО: ' + order.total + ' руб.';
-
-        tg.openTelegramLink('https://t.me/Babyrent_bot?text=' + encodeURIComponent(text));
+    if (!order.kit || !order.period || !order.startDate) {
+        tg.showAlert('Заполните все поля');
+        return;
     }
+
+    var per = PERIODS[order.period];
+    var s = new Date(order.startDate);
+    var e = new Date(s);
+    e.setDate(e.getDate() + per.weeks * 7);
+
+    var text = 'НОВЫЙ ЗАКАЗ\n';
+    text += 'Комплект: ' + KITS[order.kit].name + '\n';
+    text += 'Срок: ' + per.name + '\n';
+    text += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '\n';
+    text += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '\n';
+    text += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '\n';
+    text += 'ИТОГО: ' + order.total + ' руб.\n\n';
+    text += 'Скопируйте и отправьте это сообщение боту';
+
+    tg.showPopup({
+        title: 'Заказ сформирован',
+        message: text
+    });
+}
 
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
