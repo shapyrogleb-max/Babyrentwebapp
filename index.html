@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BabyRent</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, sans-serif; background: #FCE4EC; color: #333; padding: 16px; }
@@ -87,10 +86,6 @@
 </div>
 
 <script>
-    var tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-
     var KITS = {
         basic: { name: '🌱 Базовый', price: 800 },
         comfort: { name: '🌿 Комфорт', price: 1400 },
@@ -161,30 +156,26 @@
     }
 
     function sendOrder() {
-    if (!order.kit || !order.period || !order.startDate) {
-        tg.showAlert('Заполните все поля');
-        return;
+        if (!order.kit || !order.period || !order.startDate) {
+            alert('Заполните все поля');
+            return;
+        }
+
+        var per = PERIODS[order.period];
+        var s = new Date(order.startDate);
+        var e = new Date(s);
+        e.setDate(e.getDate() + per.weeks * 7);
+
+        var text = 'НОВЫЙ ЗАКАЗ%0A%0A';
+        text += 'Комплект: ' + KITS[order.kit].name + '%0A';
+        text += 'Срок: ' + per.name + '%0A';
+        text += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '%0A%0A';
+        text += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '%0A';
+        text += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '%0A%0A';
+        text += 'ИТОГО: ' + order.total + ' руб.';
+
+        window.location.href = 'https://t.me/Babyrent_bot?text=' + text;
     }
-
-    var per = PERIODS[order.period];
-    var s = new Date(order.startDate);
-    var e = new Date(s);
-    e.setDate(e.getDate() + per.weeks * 7);
-
-    var text = 'НОВЫЙ ЗАКАЗ\n';
-    text += 'Комплект: ' + KITS[order.kit].name + '\n';
-    text += 'Срок: ' + per.name + '\n';
-    text += 'Даты: ' + order.startDate + ' — ' + e.toISOString().split('T')[0] + '\n';
-    text += 'Доставка: ' + (order.delivery ? 'Да' : 'Нет') + '\n';
-    text += 'Стирка: ' + (order.washing ? 'Да' : 'Нет') + '\n';
-    text += 'ИТОГО: ' + order.total + ' руб.\n\n';
-    text += 'Скопируйте и отправьте это сообщение боту';
-
-    tg.showPopup({
-        title: 'Заказ сформирован',
-        message: text
-    });
-}
 
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
