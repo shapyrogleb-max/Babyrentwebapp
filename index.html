@@ -7,18 +7,18 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body style="background:#FCE4EC; padding:20px; font-family:sans-serif;">
-    <h1>Тест</h1>
-    <button onclick="send()" style="width:100%;padding:20px;background:#E91E63;color:white;border:none;border-radius:12px;font-size:18px;">Отправить</button>
-    <p id="s" style="text-align:center;margin-top:20px;"></p>
+    <h1>Тест MainButton</h1>
+    <p>Нажми синюю кнопку внизу</p>
     <script>
         var tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-        function send() {
-            document.getElementById('s').textContent = 'Отправляю...';
-            tg.sendData(JSON.stringify({test: 1}));
-            document.getElementById('s').textContent = 'Отправлено!';
-        }
+        
+        tg.MainButton.setText('Отправить заказ')
+            .show()
+            .onClick(function() {
+                tg.sendData(JSON.stringify({test: 1, hello: 'world'}));
+            });
     </script>
 </body>
 </html>
