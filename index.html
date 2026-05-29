@@ -200,31 +200,31 @@
     }
 
     function sendOrder() {
-        if (!order.kit || !order.period || !order.startDate) {
-            alert('Пожалуйста, заполните все поля');
-            return;
-        }
-        var per = PERIODS[order.period];
-        var s = new Date(order.startDate);
-        var e = new Date(s);
-        e.setDate(e.getDate() + per.weeks * 7);
-
-        var data = {
-            kit: order.kit,
-            kitName: KITS[order.kit].name,
-            period: order.period,
-            periodName: per.name,
-            startDate: order.startDate,
-            endDate: e.toISOString().split('T')[0],
-            weeks: per.weeks,
-            delivery: order.delivery,
-            washing: order.washing,
-            total: order.total
-        };
-
-        tg.sendData(JSON.stringify(data));
-        tg.close();
+    if (!order.kit || !order.period || !order.startDate) {
+        tg.showAlert('Пожалуйста, заполните все поля');
+        return;
     }
+    
+    var per = PERIODS[order.period];
+    var s = new Date(order.startDate);
+    var e = new Date(s);
+    e.setDate(e.getDate() + per.weeks * 7);
+
+    var data = {
+        kit: order.kit,
+        kitName: KITS[order.kit].name,
+        period: order.period,
+        periodName: per.name,
+        startDate: order.startDate,
+        endDate: e.toISOString().split('T')[0],
+        weeks: per.weeks,
+        delivery: order.delivery,
+        washing: order.washing,
+        total: order.total
+    };
+
+    tg.sendData(JSON.stringify(data));
+}
 
     function goBack() {
         document.getElementById('step2').classList.add('hidden');
